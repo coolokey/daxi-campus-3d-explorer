@@ -3706,6 +3706,7 @@
       window.campusAnniversary?.update(performance.now());
       window.campusPeople?.update(delta,clock.elapsedTime);
       window.campusScoreStation?.update(performance.now(),{position:avatarGroup.position,walking:currentMode==='avatar'||currentMode==='firstperson',moving:isMoving||isAutoWalking||isJumping||moveInput.forward||moveInput.backward||moveInput.left||moveInput.right||!!window.campusMobileControls?.move.x||!!window.campusMobileControls?.move.y,suspended:motionBlocked()||!document.hasFocus()});
+      window.campusThreeCentersGame?.update(delta,clock.elapsedTime);
       renderer.render(scene, camera);
     }
 
@@ -3721,7 +3722,20 @@
       track:{id:'track',name:'操場及綜合球場',buildingName:'操場',floor:1,cat:'sports',node:'track-center'},
       breezeway:{id:'breezeway',name:'中央通廊',buildingName:'教學區',floor:1,cat:'special',node:'breezeway-mid'}
     });
-    window.campusExplorer = {scene,camera,renderer,controls,buildings:BUILDINGS_CONFIG,rooms:ROOMS_DB,nodes:NAV_NODES,findShortestPath,navigateToRoom,openDestination,clearNavigation,getNavigationState,setFloorFilter,getFloorFilter:()=>currentFloorFilter,setControlMode,manualTakeover,resetManualInput,motionBlocked,getAvatarAppearance,setAvatarAppearance,createCharacter,getPlayerPosition:()=>avatarGroup.position.clone()};
+    function teleportAvatar(x,y,z,angle){
+      if(!avatarGroup)return;
+      stopAutoWalk();cancelCameraTween();
+      avatarGroup.position.set(x,y,z);prevAvatarPos.set(x,y,z);
+      if(typeof angle==='number'&&Number.isFinite(angle)){avatarAngle=angle;avatarGroup.rotation.y=angle;}
+      walkPitch=-0.06;
+      if(currentMode==='bird')setControlMode('avatar');
+      window.campusWalkWorld?.updateCamera();
+    }
+    function focusOverview(x,z,height=56){
+      stopAutoWalk();setControlMode('bird');
+      animateCameraTo(new THREE.Vector3(x,height,z+16),new THREE.Vector3(x,0,z),700);
+    }
+    window.campusExplorer = {scene,camera,renderer,controls,buildings:BUILDINGS_CONFIG,rooms:ROOMS_DB,nodes:NAV_NODES,findShortestPath,navigateToRoom,openDestination,clearNavigation,getNavigationState,setFloorFilter,getFloorFilter:()=>currentFloorFilter,setControlMode,manualTakeover,resetManualInput,motionBlocked,getAvatarAppearance,setAvatarAppearance,createCharacter,getPlayerPosition:()=>avatarGroup.position.clone(),teleportAvatar,focusOverview};
     document.body.dataset.controlMode=currentMode;
     requestAnimationFrame(animate);
     checkUrlQueryTarget();
