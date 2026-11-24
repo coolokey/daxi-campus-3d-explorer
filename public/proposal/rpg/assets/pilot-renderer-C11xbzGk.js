@@ -1,1 +1,0 @@
-import"./presentation-BEhL7FPm.js";function e(e){}export{e as setActorPainter};

@@ -1,1 +1,0 @@
-import"./presentation-DmStFFBF.js";function e(e){}export{e as setActorPainter};

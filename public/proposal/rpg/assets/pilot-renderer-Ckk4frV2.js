@@ -1,1 +1,0 @@
-import"./presentation-9IGEedBK.js";function e(e){}export{e as setActorPainter};

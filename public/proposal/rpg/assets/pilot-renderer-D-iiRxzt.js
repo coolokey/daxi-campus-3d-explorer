@@ -1,1 +1,0 @@
-import"./presentation-CmpbtaWz.js";function e(e){}export{e as setActorPainter};

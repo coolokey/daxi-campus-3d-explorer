@@ -1,1 +1,0 @@
-import"./presentation-BCylpUDM.js";function e(e){}export{e as setActorPainter};

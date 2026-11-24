@@ -1,1 +1,0 @@
-import"./presentation-By7sFFHp.js";function e(e){}export{e as setActorPainter};

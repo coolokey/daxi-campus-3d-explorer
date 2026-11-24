@@ -1,1 +1,0 @@
-import"./presentation-DacevCFY.js";function e(e){}export{e as setActorPainter};

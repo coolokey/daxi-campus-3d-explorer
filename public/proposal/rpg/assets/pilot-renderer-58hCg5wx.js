@@ -1,1 +1,0 @@
-import"./presentation-DVrX1G-Y.js";function e(e){}export{e as setActorPainter};

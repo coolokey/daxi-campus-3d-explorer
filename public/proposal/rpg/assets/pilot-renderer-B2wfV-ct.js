@@ -1,1 +1,0 @@
-import"./presentation-D-hB1ILF.js";function e(e){}export{e as setActorPainter};

@@ -1,1 +1,0 @@
-import"./presentation-DVksxg02.js";function e(e){}export{e as setActorPainter};

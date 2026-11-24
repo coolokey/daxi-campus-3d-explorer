@@ -1,1 +1,0 @@
-import"./presentation-Dcw_fdL-.js";function e(e){}export{e as setActorPainter};

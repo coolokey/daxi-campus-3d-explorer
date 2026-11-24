@@ -1,1 +1,0 @@
-import"./presentation-rDTUxYka.js";function e(e){}export{e as setActorPainter};

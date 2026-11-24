@@ -30,32 +30,9 @@ attachCampusLoading(frame,loading);shell.append(frame,loading);document.getEleme
 new vm.Script(boot);
 entry=entry.replace(moduleTag,'').replace('</body>',`<script>${boot}</script></body>`);fs.writeFileSync(entryFile,entry);
 console.log(`Campus delivery: ${scripts.length} scripts + ${styles.length} styles -> 1 script + 1 stylesheet; HTML starts viewer directly.`);
-const embedded=path.join(dist,'proposal/campus/campus-explorer');
-let embeddedHtml=fs.readFileSync(path.join(embedded,'index.html'),'utf8');
-const embeddedScripts=[...embeddedHtml.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*><\/script>/g)];
-const embeddedStyles=[...embeddedHtml.matchAll(/<link\b[^>]*>/g)].filter(m=>/rel="stylesheet"/.test(m[0]));
-const embeddedJs=embeddedScripts.map(m=>`\n/* ${m[1]} */\n${fs.readFileSync(path.join(embedded,m[1]),'utf8')}\n;`).join('');
-new vm.Script(embeddedJs);
-const embeddedCss=embeddedStyles.map(m=>fs.readFileSync(path.join(embedded,/href="([^"]+)"/.exec(m[0])[1]),'utf8')).join('\n');
-const embeddedJsName=`campus.${hash(embeddedJs)}.js`,embeddedCssName=`campus.${hash(embeddedCss)}.css`;
-fs.writeFileSync(path.join(embedded,embeddedJsName),embeddedJs);fs.writeFileSync(path.join(embedded,embeddedCssName),embeddedCss);
-for(const m of [...embeddedScripts,...embeddedStyles])embeddedHtml=embeddedHtml.replace(m[0],'');
-embeddedHtml=embeddedHtml.replace('</head>',`<link rel="stylesheet" href="${embeddedCssName}"></head>`).replace('</body>',`<script defer src="${embeddedJsName}"></script></body>`);
-fs.writeFileSync(path.join(embedded,'index.html'),embeddedHtml);
-// Rebuild the alternate outer shell too; its bundle hint and routing must not fossilize.
-const embeddedVersion=hash(embeddedHtml);
-const nestedEntry=entry.replaceAll('./assets/','../../assets/').replaceAll(jsName,embeddedJsName).replace('build='+buildVersion,'build='+embeddedVersion);
-fs.writeFileSync(path.join(dist,'proposal/campus/index.html'),nestedEntry);
-const portalFile=path.join(dist,'proposal/app.js'),portalEntry=path.join(dist,'proposal/index.html');
-const portal=fs.readFileSync(portalFile,'utf8').replace('./campus/campus-explorer/index.html','./campus/campus-explorer/index.html?build='+embeddedVersion);
-fs.writeFileSync(portalFile,portal);
-fs.writeFileSync(portalEntry,fs.readFileSync(portalEntry,'utf8').replace(/src="\.\/app\.js(?:\?[^"]*)?"/,'src="./app.js?build='+hash(portal)+'"'));
-console.log('Embedded proposal campus bundled with the same anniversary engine.');
 // The lightweight text guide keeps its own entry and never preloads WebGL.
-for(const folder of [dir,embedded]){
- const gateFile=path.join(folder,'gate.html');let gate=fs.readFileSync(gateFile,'utf8');
- const gateVersion=hash(gate+fs.readFileSync(path.join(folder,'gate-guide.js'),'utf8')+fs.readFileSync(path.join(folder,'gate-guide-model.js'),'utf8'));
- gate=gate.replace('name="campus-build" content="source"',`name="campus-build" content="${buildVersion}"`);
- gate=gate.replace(/(src|href)="([^"?]+\.(?:js|css))"/g,(_,attribute,file)=>`${attribute}="${file}?build=${hash(fs.readFileSync(path.join(folder,file),'utf8'))}"`);
- fs.writeFileSync(gateFile,gate);console.log(`Gate text guide versioned: ${gateVersion}`);
-}
+const gateFile=path.join(dir,'gate.html');let gate=fs.readFileSync(gateFile,'utf8');
+const gateVersion=hash(gate+fs.readFileSync(path.join(dir,'gate-guide.js'),'utf8')+fs.readFileSync(path.join(dir,'gate-guide-model.js'),'utf8'));
+gate=gate.replace('name="campus-build" content="source"',`name="campus-build" content="${buildVersion}"`);
+gate=gate.replace(/(src|href)="([^"?]+\.(?:js|css))"/g,(_,attribute,file)=>`${attribute}="${file}?build=${hash(fs.readFileSync(path.join(dir,file),'utf8'))}"`);
+fs.writeFileSync(gateFile,gate);console.log(`Gate text guide versioned: ${gateVersion}`);

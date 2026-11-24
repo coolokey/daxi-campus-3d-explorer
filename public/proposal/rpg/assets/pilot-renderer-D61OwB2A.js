@@ -1,1 +1,0 @@
-import"./presentation-CusoiGK_.js";function e(e){}export{e as setActorPainter};
