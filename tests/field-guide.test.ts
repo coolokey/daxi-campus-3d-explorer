@@ -4,13 +4,9 @@ import { JSDOM } from 'jsdom';
 
 function setup(width = 390, query = '', coarse = false) {
  const dom = new JSDOM(`<body><div id="welcome-card"></div><div class="search-box"><input id="search-input"></div><div class="top-actions"><div id="campus-main-controls"><button id="btn-walk"></button><button id="btn-bird"></button><button id="btn-perspective"></button><button id="btn-room-layout"></button></div></div><div id="floor-selector"></div><div id="scene-toolbar"></div><div id="nav-hud"><div id="hud-target-name"></div><span id="hud-dist-val">0</span><button id="btn-auto-walk">自動帶路</button><button id="btn-cancel-nav">取消</button></div></body>`, { runScripts: 'outside-only', url: `https://campus.example/${query}` });
- const coverHtml=readFileSync('public/campus-explorer/index.html','utf8').match(/<dialog id="guide-landing"[\s\S]*?<\/dialog>/)![0];
- dom.window.document.body.insertAdjacentHTML('afterbegin',coverHtml);
  const w = dom.window as any;
  w.innerWidth = width;
  w.matchMedia=()=>({matches:coarse});
- w.HTMLDialogElement.prototype.showModal = function() { this.setAttribute('open', ''); };
- w.HTMLDialogElement.prototype.close = function() { this.removeAttribute('open'); };
  w.HTMLElement.prototype.scrollIntoView = function() {};
  let walks = 0;
  const hud = w.document.getElementById('nav-hud');
@@ -28,12 +24,11 @@ function setup(width = 390, query = '', coarse = false) {
 }
 
 describe('探索手冊導覽卡', () => {
- it.each([[390,false],[1024,true]])('opens the search drawer from both search entry points at width %s',async(width,coarse)=>{
+ it.each([[390,false],[1024,true]])('opens the search drawer after arriving at width %s',async(width,coarse)=>{
   const s=setup(width as number,'',coarse as boolean),d=s.w.document;
-  d.querySelector('[data-chapter="search"]').click();
-  expect(d.body.classList.contains('guide-tools-open')).toBe(true);
+  expect(d.getElementById('guide-landing')).toBeNull();
+  expect(d.getElementById('guide-cover')).toBeNull();
   expect(d.body.classList.contains('guide-collapsed')).toBe(true);
-  expect(d.activeElement.id).toBe('search-input');
   s.w.campusExplorer.navigateToRoom('library');await s.tick();
   s.w.dispatchEvent(new s.w.CustomEvent('campus:navigation',{detail:{status:'arrived',destination:'library',points:[],index:0}}));
   d.getElementById('guide-arrival-search').click();await s.tick();
@@ -58,7 +53,7 @@ describe('探索手冊導覽卡', () => {
  });
  it('wide touch tablets reveal navigation after selecting a destination from the handbook',async()=>{
   const s=setup(1366,'',true),d=s.w.document;s.w.innerHeight=1024;
-  d.getElementById('guide-start').click();
+  d.getElementById('guide-toggle').click();
   expect(d.body.classList.contains('guide-collapsed')).toBe(false);
   s.w.campusExplorer.navigateToRoom('library');await s.tick();
   expect(d.body.classList.contains('guide-collapsed')).toBe(true);
@@ -66,8 +61,6 @@ describe('探索手冊導覽卡', () => {
  });
  it('手機選取目的地後收合手冊，但帶路按鈕保留在獨立卡片', async () => {
   const s = setup();
-  s.w.document.getElementById('guide-start').click();
-  expect(s.walks()).toBe(1);
   s.w.document.getElementById('guide-toggle').click();
   s.w.campusExplorer.navigateToRoom('library');
   await s.tick();
@@ -97,7 +90,7 @@ describe('探索手冊導覽卡', () => {
  });
  it('目的地深層連結保留直接進場，且不強制切換步行', () => {
   const s = setup(390, '?to=library');
-  expect(s.w.document.getElementById('guide-landing').open).toBe(false);
+  expect(s.w.document.getElementById('guide-landing')).toBeNull();
   expect(s.walks()).toBe(0);
   s.dom.window.close();
  });
@@ -123,19 +116,17 @@ describe('固定工具與導航狀態', () => {
   expect(secondary.hidden).toBe(true);
   s.dom.window.close();
  });
- it('從首頁開始桌面步行保持手冊收合，散步提案仍可主動開啟手冊', () => {
+ it('直接進入桌面探索預設手冊收合，仍可主動切換展開手冊', () => {
   const s=setup(1280),d=s.w.document;
-  d.getElementById('guide-start').click();
-  expect(s.walks()).toBe(1);
   expect(d.body.classList.contains('guide-collapsed')).toBe(true);
-  d.querySelector('[data-chapter="stories"]').click();
+  d.getElementById('guide-toggle').click();
   expect(d.body.classList.contains('guide-collapsed')).toBe(false);
   s.dom.window.close();
  });
  it('校門預覽保留隔離狀態與直接進場', () => {
   const s=setup(1280,'?gatePreview=1&view=bird'),d=s.w.document;
   expect(d.body.classList.contains('gate-preview')).toBe(true);
-  expect(d.getElementById('guide-landing').open).toBe(false);
+  expect(d.getElementById('guide-landing')).toBeNull();
   expect(s.walks()).toBe(0);
   s.dom.window.close();
  });
@@ -195,12 +186,9 @@ describe('固定工具與導航狀態', () => {
   expect(d.getElementById('guide-tools-toggle').getAttribute('aria-expanded')).toBe('false');
   s.dom.window.close();
  });
- it('搜尋入口略過歡迎卡，工具在手冊外且只有一份', () => {
+ it('直接進場即隱藏歡迎卡，工具在手冊外且只有一份', () => {
   const s=setup(1280);
-  s.w.document.getElementById('welcome-card').classList.remove('hidden');
-  s.w.document.querySelector('[data-chapter="search"]').click();
   expect(s.w.document.getElementById('welcome-card').classList.contains('hidden')).toBe(true);
-  expect(s.w.document.activeElement.id).toBe('search-input');
   const tools=s.w.document.getElementById('guide-quick-tools');
   expect(tools).not.toBeNull();
   expect(tools.closest('#guide-panel')).toBeNull();

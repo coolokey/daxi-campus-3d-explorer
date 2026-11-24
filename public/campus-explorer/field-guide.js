@@ -9,7 +9,7 @@
  if(new URLSearchParams(location.search).get('gatePreview')==='1')document.body.classList.add('gate-preview');
  el('welcome-card').classList.add('hidden');
  const panel=document.createElement('aside');panel.id='guide-panel';panel.setAttribute('aria-label','大溪校園手冊');
- panel.innerHTML='<div class="guide-mast"><span class="guide-seal">溪</span><div><small>DAXI FIELD GUIDE</small><h1>校園探索手冊</h1></div></div><p class="guide-intro">沿著一條路，認識一座校園。</p><button id="guide-cover" class="guide-link">← 回到手冊首頁</button><div id="guide-search"></div><section class="guide-section"><h2>探索方式</h2><div id="guide-controls"></div></section><section class="guide-section"><h2>樓層透視</h2><div id="guide-floors"></div></section><div id="guide-route"></div><section class="guide-section" id="guide-stories"><h2>校園散步提案</h2><p>選一站，看看校園裡不同的日常。</p></section><details class="guide-section"><summary>視角與工具</summary><div id="guide-tools"></div></details><footer>桃園市立大溪國中 · 115 學年度<br>位置依校園平面圖校對，模型為導覽示意。</footer>';
+ panel.innerHTML='<div class="guide-mast"><span class="guide-seal">溪</span><div><small>DAXI FIELD GUIDE</small><h1>校園探索手冊</h1></div></div><p class="guide-intro">沿著一條路，認識一座校園。</p><div id="guide-search"></div><section class="guide-section"><h2>探索方式</h2><div id="guide-controls"></div></section><section class="guide-section"><h2>樓層透視</h2><div id="guide-floors"></div></section><div id="guide-route"></div><section class="guide-section" id="guide-stories"><h2>校園散步提案</h2><p>選一站，看看校園裡不同的日常。</p></section><details class="guide-section"><summary>視角與工具</summary><div id="guide-tools"></div></details><footer>桃園市立大溪國中 · 115 學年度<br>位置依校園平面圖校對，模型為導覽示意。</footer>';
  document.body.append(panel);
  panel.querySelector('.guide-intro').insertAdjacentHTML('afterend','<a class="guide-gate-link" href="gate.html">我在校門口，找處室 →</a>');
  el('guide-search').append(document.querySelector('.search-box'));
@@ -130,12 +130,4 @@
  el('guide-arrival-search').onclick=()=>dismissArrival(true);
  if(api.getNavigationState?.().destination)displayNavigation(api.getNavigationState());else syncDestination();
  el('btn-cancel-nav').addEventListener('click',()=>{if(route.contains(document.activeElement))toggle.focus({preventScroll:true});});
- const cover=el('guide-landing');
- let previousFocus=null;
- function openCover(){previousFocus=document.activeElement;api.manualTakeover();if(cover.open)cover.close();cover.showModal();const featured=el('guide-anniversary');(featured&&!featured.disabled?featured:el('guide-start')).focus()}
- function enter(chapter){cover.close();if(chapter==='first')el('btn-walk').click();el('welcome-card').classList.add('hidden');setPanel(chapter==='stories'||chapter==='first'&&isCompact()&&innerWidth>=769);if(chapter==='search')showSearch();else if(chapter==='stories'){el('guide-stories').scrollIntoView({block:'nearest'});el('guide-stories').querySelector('button').focus()}else toggle.focus()}
- el('guide-start').onclick=()=>enter('first');cover.querySelectorAll('[data-chapter]').forEach(b=>b.onclick=()=>enter(b.dataset.chapter));el('guide-cover').onclick=openCover;
- cover.addEventListener('cancel',()=>{if(previousFocus?.isConnected)previousFocus.focus();else toggle.focus()});
- cover.querySelectorAll('button:not(#guide-anniversary)').forEach(button=>button.disabled=false);
- if(!new URLSearchParams(location.search).has('to')&&!new URLSearchParams(location.search).has('view'))openCover();else cover.close();
 })();
