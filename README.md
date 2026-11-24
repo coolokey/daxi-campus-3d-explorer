@@ -65,6 +65,6 @@ Three.js r128 與 OrbitControls 已本地化，授權見 `public/campus-explorer
 
 ## 公開網址
 
-https://coolokey.github.io/daxi-campus-map/
+https://coolokey.github.io/daxi-campus-3d-explorer/
 
 推送本儲存庫的 `main` 分支後，由既有 GitHub Actions 部署到同一個 GitHub Pages 網址。人物定位小地圖可使用 `scripts/verify-minimap.cjs` 驗證，設定 `CAMPUS_QA_URL` 即可測試公開頁面。
