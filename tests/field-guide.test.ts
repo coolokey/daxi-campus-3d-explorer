@@ -116,8 +116,9 @@ describe('固定工具與導航狀態', () => {
   expect(secondary.hidden).toBe(true);
   s.dom.window.close();
  });
- it('直接進入桌面探索預設手冊收合，仍可主動切換展開手冊', () => {
+ it('直接進入桌面探索預設為步行模式且手冊收合，仍可主動切換展開手冊', () => {
   const s=setup(1280),d=s.w.document;
+  expect(s.walks()).toBe(1);
   expect(d.body.classList.contains('guide-collapsed')).toBe(true);
   d.getElementById('guide-toggle').click();
   expect(d.body.classList.contains('guide-collapsed')).toBe(false);

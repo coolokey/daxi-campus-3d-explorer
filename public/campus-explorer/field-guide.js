@@ -130,4 +130,6 @@
  el('guide-arrival-search').onclick=()=>dismissArrival(true);
  if(api.getNavigationState?.().destination)displayNavigation(api.getNavigationState());else syncDestination();
  el('btn-cancel-nav').addEventListener('click',()=>{if(route.contains(document.activeElement))toggle.focus({preventScroll:true});});
+ const startParams=new URLSearchParams(location.search);
+ if(!startParams.has('to')&&startParams.get('view')!=='bird'){el('btn-walk')?.click();el('welcome-card').classList.add('hidden');}
 })();
